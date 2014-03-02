@@ -1,0 +1,5 @@
+wrapmemchecker
+
+This memchecker functions make use of the loader redirection features of gcc.
+
+The example redirects malloc and free for demonstration.
