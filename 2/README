@@ -14,6 +14,7 @@ The use of the library can be hidden by
 
 Notes
  * memchecker.c must not include memchecker.h to ensure access to the correct functions.
+ * Makefile injects test.c with libmemchecker, adding the header inclusion, at compilation time so its use is transparent from students.
  * parser.c is a Python script to demonstration parsing the log file.
 
 Todo:
