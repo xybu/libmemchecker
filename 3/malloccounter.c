@@ -5,110 +5,70 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define SECRET_FD 17
-
+static int fd_out = 1;
 static void *(*real_calloc)(size_t, size_t) = NULL;
 static void *(*real_malloc)(size_t) = NULL;
 static void *(*real_realloc)(size_t) = NULL;
 static void (*real_free)(void *) = NULL;
 
-
-/**
- * Maintain a linked list structure for memory allocated
- */
-typedef struct lnode {
-	unsigned long int addr;
-	size_t size;
-	struct lnode* next;
-} Lnode;
-
-static Lnode* head = NULL;
-static size_t bytesUnfreed = 0;
-
-static void __lib_addNode(unsigned long a, size_t t){
-	Lnode *n = (Lnode *) malloc(sizeof(Lnode));
-	n->addr = a;
-	n->size = t;
-	n->next = NULL;
-	
-	if (!head){
-		head = n;
-	} else {
-		head->next = n;
-	}
+void flushLog(){
+	close(fd_out);
+	sigset(SIGSTOP, SIG_DFL);
+	sigset(SIGTSTP, SIG_DFL);
+	_exit(0);
 }
 
-static void __lib_updateNode(unsigned long oldAddr, unsigned long newAddr, size_t t){
-	// locate the node
-	Lnode *temp = head;
-	while (temp != NULL){
-		if (temp->addr == oldAddr) break;
-		temp = temp->next;
+void flushLogWrapper(int x){
+	flushLog();
+}
+
+int recordLog(char* format, ...) {
+	char buf[1024] = {0};
+	int bytesWritten = 0;
+	
+	if (format){
+		va_list valist;
+		va_start(valist, format);
+		bytesWritten = vsnprintf(buf, 1024, format, valist);
+		va_end(valist);
 	}
 	
-	if (temp == NULL)
-		perror("Node does not exist.");
-	else {
-		temp->addr = newAddr;
-		temp->size = t;
-	}
+	write(fd_out, buf, bytesWritten);
 }
 
-static void __lib_delNode(unsigned long a){
-	Lnode *temp = head, prev = NULL;
-	while (temp != NULL){
-		if (temp->addr == oldAddr){
-			if (prev == NULL) head = temp->next;
-			else prev->next = temp->next;
-			free(temp);
-			break;
-		}
-		prev = temp;
-		temp = temp->next;
-	}
-}
-
-void printCount(){
-    char buf[1024];
-    int sz;
-    sz = sprintf(buf, "%ld\n", counter);
-    sz = write(SECRET_FD, buf, sz);
-    (void) sz;
-}
-
-__attribute__((constructor))
-void mallocCounter(){
+__attribute__((constructor)) void mallocCounter() {
 	do {
 		real_malloc = dlsym(RTLD_NEXT, "malloc");
 		real_calloc = dlsym(RTLD_NEXT, "calloc");
 		real_realloc = dlsym(RTLD_NEXT, "realloc");
 		real_free = dlsym(RTLD_NEXT, "free");
-	} while (real_malloc && real_calloc && real_realloc && real_free);
+	} while (!real_malloc || !real_calloc || !real_realloc || !real_free);
 	
-    dup2(1, SECRET_FD);
-    close(1);
-    close(2);
-	
-    atexit(printCount);
+	fd_out = creat("libmemchecker_log.txt", 0664);
+    
+	sigset(SIGTSTP, flushLogWrapper);
+    atexit(flushLog);
 }
 
 void *calloc(size_t nmemb, size_t size){
-    
-    
-    return real_calloc(nmemb, size);
+	void *lptr = real_calloc(nmemb, size);
+	recordLog("+\t%lu\t%p\tcalloc\n", (long unsigned) size * nmemb, lptr);
+	return lptr;
 }
 
 void *malloc(size_t size){
-    
-    return real_malloc(size);
+	void *lptr = real_malloc(size);
+	recordLog("+\t%lu\t%p\tmalloc\n", (long unsigned) size, lptr);
+	return lptr;
 }
 
 void *realloc(void *ptr, size_t size){
-    
-    return real_realloc(ptr, size);
+    void *lptr = real_realloc(ptr, size);
+	fprintf(fd_output, "~\t%lu\t%p\t%p\trealloc\n", (long unsigned) size, ptr, lptr);
+    return lptr;
 }
 
 void free(void *ptr){
-    
+    fprintf(fd_output, "-\t%p\n", ptr);
     real_free(ptr);
 }
