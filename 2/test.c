@@ -21,7 +21,9 @@ int main(void){
 	printf("%s\n", c);
 	
 	free(a);
-	free(b);
+	//free(b);
+	b = realloc(b, 0);
+	
 	//free(c);
 	
 	return 0;
