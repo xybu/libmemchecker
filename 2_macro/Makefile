@@ -6,4 +6,4 @@ all:
 	@gcc -g -std=gnu99 -o test test.c -L. -lmemchecker
 
 clean:
-	rm *.a *.o test *_log.txt
+	rm *.a *.o test *.txt
