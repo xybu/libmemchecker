@@ -3,7 +3,7 @@
 #include <string.h>
 
 static FILE* fd_output = NULL;
-static char *fd_fName = "libmemchecker_log.txt";
+static char *fd_fName = "libmemchecker.txt";
 
 __attribute__((constructor)) void memchecker(){
 	fd_output = fopen(fd_fName, "w");
