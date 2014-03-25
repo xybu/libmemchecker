@@ -1,6 +1,8 @@
 libmemchecker
 =============
 
+@xybu92 last updated at Mar 24, 2014
+
 Set of C functions that can be used to generate logs for DMA function calls (malloc/calloc/realloc/free), thereby analyzing memory leak or other information.
 
 All are written in C with supplement components written in Python or directly from GNU/Linux.
@@ -11,7 +13,7 @@ Directory: /1_Wl/
 
 This memchecker makes use of the loader redirection features of `gcc`.
 
-The example redirects malloc and free for demonstration.
+The example redirects only `malloc` and `free` for demonstration.
 
 ## Known Issues
 
@@ -23,20 +25,20 @@ Directory: /2_macro/
 
 This method uses macro to redirect DMA function calls.
 
-To redirect the memory (de)allocation functions, 
- - include the header memchecker.h.
- - compile with the libmemchecker.a library
- 
-The use of the library can be hidden by
- - hide the compile command by prepending the command with a @
- - echo a string as it if were the actual command
+## Usage
+* To redirect the memory (de)allocation functions, 
+	 - include the header memchecker.h.
+	 - compile with the libmemchecker.a library
+* The use of the library can be hidden by
+	 - hiding the compile command by prepending the command with a @
+	 - echoing a string as it if were the actual command
 
-Notes
+## Notes
  * memchecker.c must not include memchecker.h to ensure access to the correct functions.
  * Makefile injects test.c with libmemchecker, adding the header inclusion, at compilation time so its use is transparent from students.
  * parser.py is a Python script to demonstration parsing the log file.
 
-Todo:
+## Todo:
  * write a C parser if needed.
 
 # mtrace hook
@@ -44,6 +46,14 @@ Todo:
 Directory: /3_mtrace/
 
 The third method uses mtrace component in Linux to generate and parse logs.
+
+## Usage
+
+* Simply compile the program with the `mtrace_hook`, when program exits a mtrace log will be generated
+* Issue `mtrace` command to analyze the log (see the commands in `wrapper.sh`).
+	 * When there is no memory leak, `mtrace` will return `No Memory Leaks`
+	 * Otherwise a list of addresses, sizees, and callers will be printed
+	 * Refer to http://en.wikipedia.org/wiki/Mtrace
 
 ## Known Issues
 
