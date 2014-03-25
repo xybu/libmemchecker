@@ -27,25 +27,25 @@ This method uses macro to redirect DMA function calls.
 
 ## Usage
 * To redirect the memory (de)allocation functions, 
-	 - include the header memchecker.h.
-	 - compile with the libmemchecker.a library
+	 - include the header `memchecker.h`.
+	 - compile with the `libmemchecker.a` library (See `Makefile`)
 * The use of the library can be hidden by
-	 - hiding the compile command by prepending the command with a @
-	 - echoing a string as it if were the actual command
+	 - hiding the compile command by pre-pending the command with a `@`
+	 - `echo`ing a string as it if were the actual command
 
 ## Notes
- * memchecker.c must not include memchecker.h to ensure access to the correct functions.
- * Makefile injects test.c with libmemchecker, adding the header inclusion, at compilation time so its use is transparent from students.
- * parser.py is a Python script to demonstration parsing the log file.
+ * `memchecker.c` must not include `memchecker.h` to ensure access to the actual functions.
+ * `Makefile` injects tested program `test.c` with `libmemchecker`, adding the header inclusion, at compilation time so its use is hidden.
+ * `parser.py` is a Python script to demonstration parsing the log file.
 
-## Todo:
+## Todo
  * write a C parser if needed.
 
 # mtrace hook
 
 Directory: /3_mtrace/
 
-The third method uses mtrace component in Linux to generate and parse logs.
+The third method uses `mtrace` component in Linux to generate and parse logs.
 
 ## Usage
 
