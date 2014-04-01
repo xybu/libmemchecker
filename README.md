@@ -6,9 +6,14 @@ libmemchecker
 
 Set of C functions that can be used to generate logs for DMA function calls (malloc/calloc/realloc/free), thereby analyzing memory leak or other information.
 
+All the components are written so as to be suitable for tasks like automated testing (especially if the tested program runs a jail) where valgrind and other
+widely used tools may be too slow to use or have other restrictions.
+
 All are written in C with supplement components written in Python or directly from GNU/Linux.
 
-Note: _The test driver should check against abnormal termination of programs caused by say, segmentation fault, before performing memcheck functions._
+Note:
+ * _The test driver should check against abnormal termination of programs caused by say, segmentation fault, before performing memcheck functions._
+ * Never assume the tested program to behave the way you want.
 
 # GCC Wrapper Method
 
